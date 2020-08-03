@@ -7,4 +7,5 @@ func Routes(router *fiber.Router) {
 	(*router).Post("/set/:key", set)
 	(*router).Get("/get/:key", get)
 	(*router).Get("/", getAll)
+	(*router).Post("/mget", mget)
 }
