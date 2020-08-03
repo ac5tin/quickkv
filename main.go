@@ -34,6 +34,8 @@ func main() {
 	web.Routes(&webapi)
 	// ===== ERROR RECOVER =====
 	app.Use(middleware.Recover())
+	// ==== LOGGER =====
+	app.Use(middleware.Logger())
 	// start server
 	log.Println(fmt.Sprintf("Listening on PORT %d", *port))
 	if err := app.Listen(*port); err != nil {

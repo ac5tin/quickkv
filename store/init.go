@@ -3,7 +3,6 @@ package store
 import (
 	"encoding/json"
 	"log"
-	"os"
 	"sync"
 
 	uf "github.com/ac5tin/usefulgo"
@@ -12,9 +11,9 @@ import (
 // Init - initialise store
 func Init(path string) *Store {
 	d := make(map[string]interface{})
-	if !fileExist(path) {
+	if !uf.NewFS().FileExist(path) {
 		// file doesnt exist, create new file
-		if err := createFile(path); err != nil {
+		if err := uf.NewFS().CreateFile(path); err != nil {
 			log.Panic(err.Error())
 		}
 	} else {
@@ -33,21 +32,4 @@ func Init(path string) *Store {
 	}
 	return &s
 
-}
-
-func fileExist(path string) bool {
-	_, err := os.Stat(path)
-	if err == nil {
-		return true
-	}
-	return false
-}
-
-func createFile(path string) error {
-	f, err := os.Create(path)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-	return nil
 }

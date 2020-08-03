@@ -33,3 +33,31 @@ func set(c *fiber.Ctx) {
 		"result": "success",
 	})
 }
+
+func get(c *fiber.Ctx) {
+	key := c.Params("key")
+	s := c.Locals("store").(*store.Store)
+	v, err := s.Get(key)
+	if err != nil {
+		log.Println(err.Error())
+		c.Status(400).JSON(fiber.Map{
+			"result": "error",
+			"error":  err.Error(),
+		})
+		return
+	}
+	// all done
+	c.Status(200).JSON(fiber.Map{
+		"result": "success",
+		"data":   v,
+	})
+}
+
+func getAll(c *fiber.Ctx) {
+	s := c.Locals("store").(*store.Store)
+	// all done
+	c.Status(200).JSON(fiber.Map{
+		"result": "success",
+		"data":   s.Data,
+	})
+}
