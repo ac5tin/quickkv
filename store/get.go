@@ -1,8 +1,11 @@
 package store
 
 import (
+	"encoding/json"
 	"errors"
 	"sync"
+
+	uf "github.com/ac5tin/usefulgo"
 )
 
 // Get - retrieve data from store
@@ -30,4 +33,19 @@ func (s *Store) MGet(keys []string) []interface{} {
 	}
 	wg.Wait()
 	return retme
+}
+
+// Load - load data from file
+func (s *Store) Load() error {
+	b, err := uf.NewFS().Read(s.Path)
+	if err != nil {
+		return err
+	}
+
+	var d map[string]interface{}
+	if err := json.Unmarshal(b, &d); err != nil {
+		return err
+	}
+	s.Data = d
+	return nil
 }
