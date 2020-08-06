@@ -46,6 +46,8 @@ func (s *Store) Load() error {
 	if err := json.Unmarshal(b, &d); err != nil {
 		return err
 	}
+	s.Mux.Lock()
+	defer s.Mux.Unlock()
 	s.Data = d
 	return nil
 }

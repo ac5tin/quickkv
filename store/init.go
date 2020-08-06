@@ -11,13 +11,20 @@ import (
 // Init - initialise store
 func Init(path string) *Store {
 	d := make(map[string]interface{})
-	if !uf.NewFS().FileExist(path) {
+	f := uf.NewFS()
+	if !f.FileExist(path) {
 		// file doesnt exist, create new file
-		if err := uf.NewFS().CreateFile(path); err != nil {
+		if err := f.CreateFile(path); err != nil {
 			log.Panic(err.Error())
 		}
+		b, err := json.Marshal(d)
+		if err != nil {
+			log.Panic(err.Error())
+		}
+		f.Write(b, path)
+
 	} else {
-		b, err := uf.NewFS().Read(path)
+		b, err := f.Read(path)
 		if err != nil {
 			log.Panic(err.Error())
 		}
