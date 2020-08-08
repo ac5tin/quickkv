@@ -1,7 +1,6 @@
 package store
 
 import (
-	"encoding/json"
 	"errors"
 	"sync"
 )
@@ -40,19 +39,4 @@ func (s Store) GetAll() map[string]interface{} {
 	s.Mux.RLock()
 	defer s.Mux.RUnlock()
 	return s.Data
-}
-
-// Load - load data from file
-func (s Store) Load() error {
-	b, err := s.read()
-	if err != nil {
-		return err
-	}
-
-	var d map[string]interface{}
-	if err := json.Unmarshal(b, &d); err != nil {
-		return err
-	}
-	s.Data = d
-	return nil
 }

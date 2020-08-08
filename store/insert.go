@@ -1,7 +1,6 @@
 package store
 
 import (
-	"encoding/json"
 	"sync"
 )
 
@@ -11,12 +10,7 @@ func (s Store) Set(key string, value interface{}) error {
 	defer s.Mux.Unlock()
 	s.Data[key] = value
 
-	b, err := json.Marshal(s.Data)
-	if err != nil {
-		return err
-	}
-
-	if err := s.write(&b); err != nil {
+	if err := s.Save(); err != nil {
 		return err
 	}
 	return nil
