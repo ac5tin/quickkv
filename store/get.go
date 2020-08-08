@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"sync"
-
-	uf "github.com/ac5tin/usefulgo"
 )
 
 // Get - retrieve data from store
-func (s *Store) Get(key string) (interface{}, error) {
+func (s Store) Get(key string) (interface{}, error) {
+	s.Mux.RLock()
+	defer s.Mux.RUnlock()
 	if v, ok := s.Data[key]; ok {
 		return v, nil
 	}
@@ -17,7 +17,7 @@ func (s *Store) Get(key string) (interface{}, error) {
 }
 
 // MGet - multiple get
-func (s *Store) MGet(keys []string) []interface{} {
+func (s Store) MGet(keys []string) []interface{} {
 	retme := make([]interface{}, 0)
 	var wg sync.WaitGroup
 	mux := &sync.RWMutex{}
@@ -35,9 +35,16 @@ func (s *Store) MGet(keys []string) []interface{} {
 	return retme
 }
 
+// GetAll - retrieve whole store
+func (s Store) GetAll() map[string]interface{} {
+	s.Mux.RLock()
+	defer s.Mux.RUnlock()
+	return s.Data
+}
+
 // Load - load data from file
-func (s *Store) Load() error {
-	b, err := uf.NewFS().Read(s.Path)
+func (s Store) Load() error {
+	b, err := s.read()
 	if err != nil {
 		return err
 	}
@@ -46,8 +53,6 @@ func (s *Store) Load() error {
 	if err := json.Unmarshal(b, &d); err != nil {
 		return err
 	}
-	s.Mux.Lock()
-	defer s.Mux.Unlock()
 	s.Data = d
 	return nil
 }

@@ -9,7 +9,7 @@ import (
 )
 
 // Init - initialise store
-func Init(path string) *Store {
+func Init(path, password string) Store {
 	d := make(map[string]interface{})
 	f := uf.NewFS()
 	if !f.FileExist(path) {
@@ -21,6 +21,13 @@ func Init(path string) *Store {
 		if err != nil {
 			log.Panic(err.Error())
 		}
+		if password != "" {
+			encb, err := uf.NewCrypto().Enc(&b, password)
+			if err != nil {
+				log.Panic(err.Error())
+			}
+			b = encb
+		}
 		f.Write(b, path)
 
 	} else {
@@ -28,15 +35,27 @@ func Init(path string) *Store {
 		if err != nil {
 			log.Panic(err.Error())
 		}
+
+		if password != "" {
+			decb, err := uf.NewCrypto().Dec(&b, password)
+			if err != nil {
+				log.Panic(err.Error())
+			}
+			b = *decb
+		}
+
 		if err := json.Unmarshal(b, &d); err != nil {
 			log.Panic(err.Error())
 		}
 	}
+
 	s := Store{
-		Path: path,
-		Data: d,
-		Mux:  &sync.RWMutex{},
+		Path:     path,
+		Data:     d,
+		Password: password,
+		Mux:      &sync.RWMutex{},
 	}
-	return &s
+
+	return s
 
 }

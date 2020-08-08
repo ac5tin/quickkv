@@ -58,7 +58,7 @@ func getAll(c *fiber.Ctx) {
 	// all done
 	c.Status(200).JSON(fiber.Map{
 		"result": "success",
-		"data":   s.Data,
+		"data":   s.GetAll(),
 	})
 }
 

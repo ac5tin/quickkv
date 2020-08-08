@@ -6,25 +6,40 @@ import (
 	"log"
 	"quickkv/store"
 	"quickkv/web"
+	"syscall"
 
 	"github.com/gofiber/fiber"
 	"github.com/gofiber/fiber/middleware"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 var (
-	port     = flag.Int("p", 8310, "Port to listen to")
-	filepath = flag.String("f", "qkv", "File path")
+	port            = flag.Int("p", 8310, "Port to listen to")
+	filepath        = flag.String("f", "qkv", "File path")
+	enc             = flag.Bool("enc", false, "Enable encryption")
+	pw       string = ""
 )
 
 func main() {
 	flag.Parse()
+
+	// encryption
+	if *enc {
+		fmt.Println("- Enabled Encryption mode -\nPlease Enter Password: (input is hidden)")
+		bytepw, err := terminal.ReadPassword(int(syscall.Stdin))
+		if err != nil {
+			log.Panic("Failed to read password")
+		}
+		pw = string(bytepw)
+	}
+	// web server
 	app := fiber.New()
 	// middleware
 	app.Use(middleware.Compress())
 	// store
-	s := store.Init(*filepath)
+	s := store.Init(*filepath, pw)
 	app.Use(func(c *fiber.Ctx) {
-		c.Locals("store", s)
+		c.Locals("store", &s)
 		c.Next()
 	})
 	// ==== API ROUTES =====

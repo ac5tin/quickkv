@@ -3,12 +3,10 @@ package store
 import (
 	"encoding/json"
 	"sync"
-
-	uf "github.com/ac5tin/usefulgo"
 )
 
 // Set - sets a value in store
-func (s *Store) Set(key string, value interface{}) error {
+func (s Store) Set(key string, value interface{}) error {
 	s.Mux.Lock()
 	defer s.Mux.Unlock()
 	s.Data[key] = value
@@ -17,14 +15,15 @@ func (s *Store) Set(key string, value interface{}) error {
 	if err != nil {
 		return err
 	}
-	if err := uf.NewFS().Write(b, s.Path); err != nil {
+
+	if err := s.write(&b); err != nil {
 		return err
 	}
 	return nil
 }
 
 // MSet - multiple set
-func (s *Store) MSet(key string, values []interface{}) error {
+func (s Store) MSet(key string, values []interface{}) error {
 	var wg sync.WaitGroup
 	var er error = nil
 	for _, value := range values {
@@ -41,14 +40,14 @@ func (s *Store) MSet(key string, values []interface{}) error {
 }
 
 // QMSet - quick multiple set
-func (s *Store) QMSet(key string, values []interface{}) {
+func (s Store) QMSet(key string, values []interface{}) {
 	for _, value := range values {
 		go s.Set(key, value)
 	}
 }
 
 // MapSet - multiple set using map
-func (s *Store) MapSet(input map[string]interface{}) error {
+func (s Store) MapSet(input map[string]interface{}) error {
 	var wg sync.WaitGroup
 	var er error = nil
 	for key, value := range input {
@@ -65,7 +64,7 @@ func (s *Store) MapSet(input map[string]interface{}) error {
 }
 
 // QMapSet - quick map set
-func (s *Store) QMapSet(input map[string]interface{}) {
+func (s Store) QMapSet(input map[string]interface{}) {
 	for key, value := range input {
 		go s.Set(key, value)
 	}
