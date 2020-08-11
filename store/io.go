@@ -11,10 +11,8 @@ func (s Store) write(b *[]byte) error {
 		}
 		bin = bb
 	}
-	if s.Password == "" {
-		if err := uf.NewFS().Write(bin, s.Path); err != nil {
-			return err
-		}
+	if err := uf.NewFS().Write(bin, s.Path); err != nil {
+		return err
 	}
 	return nil
 }

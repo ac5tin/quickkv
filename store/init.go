@@ -20,10 +20,12 @@ func Init(path, password string) *Store {
 	}
 
 	if f.FileExist(path) {
+		// file exist, load data
 		if err := s.Load(); err != nil {
 			log.Panic(err.Error())
 		}
 	} else {
+		// file doesn't exist
 		if err := s.Save(); err != nil {
 			log.Panic(err.Error())
 		}
