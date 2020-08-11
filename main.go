@@ -34,6 +34,8 @@ func main() {
 	}
 	// web server
 	app := fiber.New()
+	// settings
+	app.Settings.BodyLimit = 1024 * 1024 * 1024
 	// middleware
 	app.Use(middleware.Compress())
 	// store

@@ -81,3 +81,20 @@ func mget(c *fiber.Ctx) {
 		"data":   v,
 	})
 }
+
+func del(c *fiber.Ctx) {
+	key := c.Params("key")
+	s := store.STORE
+	if err := s.Del(key); err != nil {
+		log.Println(err.Error())
+		c.Status(400).JSON(fiber.Map{
+			"result": "error",
+			"error":  err.Error(),
+		})
+		return
+	}
+	// all done
+	c.Status(200).JSON(fiber.Map{
+		"result": "success",
+	})
+}
