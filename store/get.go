@@ -9,7 +9,7 @@ import (
 func (s Store) Get(key string) (interface{}, error) {
 	s.Mux.RLock()
 	defer s.Mux.RUnlock()
-	if v, ok := s.Data[key]; ok {
+	if v, ok := (*s.Data)[key]; ok {
 		return v, nil
 	}
 	return nil, errors.New("Failed to find key")
@@ -38,5 +38,5 @@ func (s Store) MGet(keys []string) []interface{} {
 func (s Store) GetAll() map[string]interface{} {
 	s.Mux.RLock()
 	defer s.Mux.RUnlock()
-	return s.Data
+	return (*s.Data)
 }

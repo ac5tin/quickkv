@@ -1,6 +1,7 @@
 package web
 
 import (
+	"fmt"
 	"log"
 	"quickkv/store"
 
@@ -19,8 +20,8 @@ func set(c *fiber.Ctx) {
 		return
 	}
 
-	s := c.Locals("store").(*store.Store)
-	if err := s.Set(key, value); err != nil {
+	s := store.STORE
+	if err := s.Set(fmt.Sprintf("%s", key), value); err != nil {
 		log.Println(err.Error())
 		c.Status(400).JSON(fiber.Map{
 			"result": "error",
@@ -36,7 +37,7 @@ func set(c *fiber.Ctx) {
 
 func get(c *fiber.Ctx) {
 	key := c.Params("key")
-	s := c.Locals("store").(*store.Store)
+	s := store.STORE
 	v, err := s.Get(key)
 	if err != nil {
 		log.Println(err.Error())
@@ -54,7 +55,7 @@ func get(c *fiber.Ctx) {
 }
 
 func getAll(c *fiber.Ctx) {
-	s := c.Locals("store").(*store.Store)
+	s := store.STORE
 	// all done
 	c.Status(200).JSON(fiber.Map{
 		"result": "success",
@@ -72,7 +73,7 @@ func mget(c *fiber.Ctx) {
 		})
 		return
 	}
-	s := c.Locals("store").(*store.Store)
+	s := store.STORE
 	v := s.MGet(keys)
 	// all done
 	c.Status(200).JSON(fiber.Map{

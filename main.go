@@ -37,9 +37,8 @@ func main() {
 	// middleware
 	app.Use(middleware.Compress())
 	// store
-	s := store.Init(*filepath, pw)
+	store.Init(*filepath, pw)
 	app.Use(func(c *fiber.Ctx) {
-		c.Locals("store", &s)
 		c.Next()
 	})
 	// ==== API ROUTES =====

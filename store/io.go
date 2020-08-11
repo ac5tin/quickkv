@@ -21,8 +21,13 @@ func (s Store) write(b *[]byte) error {
 
 func (s Store) read() ([]byte, error) {
 	if s.Password == "" {
-		b, err := uf.NewCrypto().DecryptFile(s.Path, s.Password)
-		return *b, err
+
+		return uf.NewFS().Read(s.Path)
 	}
-	return uf.NewFS().Read(s.Path)
+	b, err := uf.NewCrypto().DecryptFile(s.Path, s.Password)
+	if b == nil {
+		return nil, err
+	}
+	return *b, err
+
 }
