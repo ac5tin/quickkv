@@ -14,7 +14,7 @@ func Init(path, password string) *Store {
 
 	s := Store{
 		Path:     path,
-		Data:     &d,
+		Data:     d,
 		Password: password,
 		Mux:      &sync.RWMutex{},
 	}

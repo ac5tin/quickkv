@@ -9,7 +9,7 @@ func (s Store) Set(key string, value interface{}) error {
 	s.Mux.Lock()
 	defer s.Mux.Unlock()
 
-	(*s.Data)[key] = value
+	s.Data[key] = value
 
 	if err := s.Save(); err != nil {
 		return err

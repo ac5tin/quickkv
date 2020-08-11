@@ -30,6 +30,10 @@ func (s Store) Load() error {
 	if err := decoder.Decode(&d); err != nil {
 		return err
 	}
-	s.Data = &d
+	// s.Data = d <- this line doesnt work
+	// need to run loop to reassign keyvalue
+	for key, value := range d {
+		s.Data[key] = value
+	}
 	return nil
 }
