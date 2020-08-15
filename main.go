@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"quickkv/grpcserver"
 	"quickkv/store"
 	"quickkv/web"
 	"syscall"
@@ -15,6 +16,7 @@ import (
 
 var (
 	port            = flag.Int("p", 8310, "Port to listen to")
+	gport           = flag.Int("gp", 27444, "GRPC Server Port")
 	filepath        = flag.String("f", "qkv", "File path")
 	enc             = flag.Bool("enc", false, "Enable encryption")
 	pw       string = ""
@@ -32,14 +34,19 @@ func main() {
 		}
 		pw = string(bytepw)
 	}
+	// store
+	store.Init(*filepath, pw)
+
+	// grpc
+	go grpcserver.StartServer(uint16(*gport))
+
 	// web server
 	app := fiber.New()
 	// settings
 	app.Settings.BodyLimit = 1024 * 1024 * 1024
 	// middleware
 	app.Use(middleware.Compress())
-	// store
-	store.Init(*filepath, pw)
+
 	app.Use(func(c *fiber.Ctx) {
 		c.Next()
 	})

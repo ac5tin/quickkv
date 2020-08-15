@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package quickkv;
+option go_package = "./quickkvpb";
+
+message ioRequest {
+    uint32 type = 1;
+}
+
+message ioResponse {
+    uint32 error = 1;
+}
+
+service ioService {
+    rpc SendIO(ioRequest) returns (ioResponse){};
+}
