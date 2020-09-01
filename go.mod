@@ -1,6 +1,6 @@
 module quickkv
 
-go 1.14
+go 1.15
 
 require (
 	github.com/ac5tin/usefulgo v0.0.0-20200803083554-c83810b002ea
