@@ -11,4 +11,5 @@ func Routes(router *fiber.Router) {
 	(*router).Delete("/del/:key", del)
 	(*router).Delete("/reset", reset)
 	(*router).Post("/push/:key", push)
+	(*router).Post("/rm/:key", arrdel)
 }

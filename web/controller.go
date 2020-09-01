@@ -141,3 +141,30 @@ func push(c *fiber.Ctx) {
 		"result": "success",
 	})
 }
+
+func arrdel(c *fiber.Ctx) {
+	key := c.Params("key")
+	var value interface{}
+	if err := c.BodyParser(&value); err != nil {
+		log.Println(err.Error())
+		c.Status(400).JSON(fiber.Map{
+			"result": "error",
+			"error":  err.Error(),
+		})
+		return
+	}
+
+	s := store.STORE
+	if err := s.ArrRm(fmt.Sprintf("%s", key), value); err != nil {
+		log.Println(err.Error())
+		c.Status(400).JSON(fiber.Map{
+			"result": "error",
+			"error":  err.Error(),
+		})
+		return
+	}
+	// all done
+	c.Status(200).JSON(fiber.Map{
+		"result": "success",
+	})
+}
