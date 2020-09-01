@@ -98,3 +98,19 @@ func del(c *fiber.Ctx) {
 		"result": "success",
 	})
 }
+
+func reset(c *fiber.Ctx) {
+	s := store.STORE
+	if err := s.Reset(); err != nil {
+		log.Println(err.Error())
+		c.Status(400).JSON(fiber.Map{
+			"result": "error",
+			"error":  err.Error(),
+		})
+		return
+	}
+	// all done
+	c.Status(200).JSON(fiber.Map{
+		"result": "success",
+	})
+}
