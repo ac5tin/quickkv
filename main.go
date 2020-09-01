@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/gob"
 	"flag"
 	"fmt"
 	"log"
@@ -23,6 +24,8 @@ var (
 )
 
 func main() {
+	gob.Register([]interface{}{}) // register for []interface{}
+
 	flag.Parse()
 
 	// encryption

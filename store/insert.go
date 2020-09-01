@@ -1,6 +1,7 @@
 package store
 
 import (
+	"errors"
 	"sync"
 )
 
@@ -14,6 +15,28 @@ func (s Store) Set(key string, value interface{}) error {
 	if err := s.Save(); err != nil {
 		return err
 	}
+	return nil
+}
+
+// Push - pushes a value to an array in store
+func (s Store) Push(key string, value interface{}) error {
+	s.Mux.Lock()
+	defer s.Mux.Unlock()
+	if _, ok := s.Data[key]; !ok {
+		s.Data[key] = make([]interface{}, 0)
+	}
+
+	if arr, ok := s.Data[key].([]interface{}); ok {
+		arr = append(arr, value)
+		s.Data[key] = arr
+
+		if err := s.Save(); err != nil {
+			return err
+		}
+	} else {
+		return errors.New("Key not of array type")
+	}
+
 	return nil
 }
 
