@@ -24,7 +24,8 @@ var (
 )
 
 func main() {
-	gob.Register([]interface{}{}) // register for []interface{}
+	gob.Register([]interface{}{})          // register for []interface{}
+	gob.Register(map[string]interface{}{}) // register for []interface{}
 
 	flag.Parse()
 
