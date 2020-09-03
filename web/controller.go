@@ -142,6 +142,26 @@ func push(c *fiber.Ctx) {
 	})
 }
 
+func pop(c *fiber.Ctx) {
+	key := c.Params("key")
+
+	s := store.STORE
+	v, err := s.Pop(fmt.Sprintf("%s", key))
+	if err != nil {
+		log.Println(err.Error())
+		c.Status(400).JSON(fiber.Map{
+			"result": "error",
+			"error":  err.Error(),
+		})
+		return
+	}
+	// all done
+	c.Status(200).JSON(fiber.Map{
+		"result": "success",
+		"data":   v,
+	})
+}
+
 func arrdel(c *fiber.Ctx) {
 	key := c.Params("key")
 	var value interface{}

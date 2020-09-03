@@ -41,6 +41,30 @@ func (s Store) ArrRm(key string, value interface{}) error {
 	return nil
 }
 
+// Pop - removes last element from array and returns it
+func (s Store) Pop(key string) (interface{}, error) {
+	s.Mux.Lock()
+	defer s.Mux.Unlock()
+	var retme interface{}
+	if _, ok := s.Data[key]; !ok {
+		s.Data[key] = make([]interface{}, 0)
+	}
+
+	if arr, ok := s.Data[key].([]interface{}); ok {
+		retme = arr[0]
+		arr = arr[1:]
+		s.Data[key] = arr
+
+		if err := s.Save(); err != nil {
+			return nil, err
+		}
+	} else {
+		return nil, errors.New("Key not of array type")
+	}
+
+	return retme, nil
+}
+
 // Reset - resets the store
 func (s Store) Reset() error {
 	s.Mux.Lock()
