@@ -6,7 +6,7 @@ import (
 )
 
 // Get - retrieve data from store
-func (s Store) Get(key string) (interface{}, error) {
+func (s *Store) Get(key string) (interface{}, error) {
 	s.Mux.RLock()
 	defer s.Mux.RUnlock()
 	if v, ok := s.Data[key]; ok {
@@ -16,7 +16,7 @@ func (s Store) Get(key string) (interface{}, error) {
 }
 
 // MGet - multiple get
-func (s Store) MGet(keys []string) []interface{} {
+func (s *Store) MGet(keys []string) []interface{} {
 	retme := make([]interface{}, 0)
 	var wg sync.WaitGroup
 	mux := &sync.RWMutex{}
@@ -35,7 +35,7 @@ func (s Store) MGet(keys []string) []interface{} {
 }
 
 // GetAll - retrieve whole store
-func (s Store) GetAll() map[string]interface{} {
+func (s *Store) GetAll() map[string]interface{} {
 	s.Mux.RLock()
 	defer s.Mux.RUnlock()
 	return s.Data

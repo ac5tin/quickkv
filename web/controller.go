@@ -162,6 +162,37 @@ func pop(c *fiber.Ctx) {
 	})
 }
 
+func shift(c *fiber.Ctx) {
+	key := c.Params("key")
+
+	query := struct {
+		Shift int `query:"shift"`
+	}{}
+
+	if err := c.QueryParser(&query); err != nil {
+		log.Println(err.Error())
+		c.Status(400).JSON(fiber.Map{
+			"result": "error",
+			"error":  err.Error(),
+		})
+		return
+	}
+
+	s := store.STORE
+	if err := s.Shift(fmt.Sprintf("%s", key), query.Shift); err != nil {
+		log.Println(err.Error())
+		c.Status(400).JSON(fiber.Map{
+			"result": "error",
+			"error":  err.Error(),
+		})
+		return
+	}
+	// all done
+	c.Status(200).JSON(fiber.Map{
+		"result": "success",
+	})
+}
+
 func arrdel(c *fiber.Ctx) {
 	key := c.Params("key")
 	var value interface{}

@@ -2,7 +2,7 @@ package store
 
 import uf "github.com/ac5tin/usefulgo"
 
-func (s Store) write(b *[]byte) error {
+func (s *Store) write(b *[]byte) error {
 	bin := *b
 	if s.Password != "" {
 		bb, err := uf.NewCrypto().Enc(b, s.Password)
@@ -17,7 +17,7 @@ func (s Store) write(b *[]byte) error {
 	return nil
 }
 
-func (s Store) read() ([]byte, error) {
+func (s *Store) read() ([]byte, error) {
 	if s.Password == "" {
 
 		return uf.NewFS().Read(s.Path)

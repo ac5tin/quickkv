@@ -6,7 +6,7 @@ import (
 )
 
 // Save - save data to file
-func (s Store) Save() error {
+func (s *Store) Save() error {
 	var buf bytes.Buffer
 	encoder := gob.NewEncoder(&buf)
 	if err := encoder.Encode(s.Data); err != nil {
@@ -18,7 +18,7 @@ func (s Store) Save() error {
 }
 
 // Load - load data from file
-func (s Store) Load() error {
+func (s *Store) Load() error {
 	b, err := s.read()
 	if err != nil {
 		return err
