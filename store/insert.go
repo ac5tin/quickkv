@@ -40,6 +40,28 @@ func (s *Store) Push(key string, value interface{}) error {
 	return nil
 }
 
+// Unshift - unshift/push value to the front of an array in store
+func (s *Store) Unshift(key string, value interface{}) error {
+	s.Mux.Lock()
+	defer s.Mux.Unlock()
+	if _, ok := s.Data[key]; !ok {
+		s.Data[key] = make([]interface{}, 0)
+	}
+
+	if arr, ok := s.Data[key].([]interface{}); ok {
+		arr = append([]interface{}{value}, arr...)
+		s.Data[key] = arr
+
+		if err := s.Save(); err != nil {
+			return err
+		}
+	} else {
+		return errors.New("Key not of array type")
+	}
+
+	return nil
+}
+
 // MSet - multiple set
 func (s *Store) MSet(key string, values []interface{}) error {
 	var wg sync.WaitGroup
