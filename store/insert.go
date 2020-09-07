@@ -7,12 +7,13 @@ import (
 
 // Set - sets a value in store
 func (s *Store) Set(key string, value interface{}) error {
-	x, ok := s.Data.Load(s.Key)
-	if !ok {
-		return errors.New("Unable to load data")
+	x, err := s.getMap()
+	if err != nil {
+		return err
 	}
 
-	x.(map[string]interface{})[key] = value
+	x[key] = value
+	s.Data.Store(s.Key, x)
 
 	if err := s.Save(); err != nil {
 		return err
@@ -22,18 +23,19 @@ func (s *Store) Set(key string, value interface{}) error {
 
 // Push - pushes a value to an array in store
 func (s *Store) Push(key string, value interface{}) error {
-	x, ok := s.Data.Load(s.Key)
-	if !ok {
-		return errors.New("Unable to load data")
-	}
-	if _, ok := x.(map[string]interface{})[key]; !ok {
-		x.(map[string]interface{})[key] = make([]interface{}, 0)
+	x, err := s.getMap()
+	if err != nil {
+		return err
 	}
 
-	if arr, ok := x.(map[string]interface{})[key].([]interface{}); ok {
+	if _, ok := x[key]; !ok {
+		x[key] = make([]interface{}, 0)
+	}
+
+	if arr, ok := x[key].([]interface{}); ok {
 		arr = append(arr, value)
-		x.(map[string]interface{})[key] = arr
-		s.Data.Store(s.Key, x.(map[string]interface{}))
+		x[key] = arr
+		s.Data.Store(s.Key, x)
 		if err := s.Save(); err != nil {
 			return err
 		}
@@ -46,18 +48,19 @@ func (s *Store) Push(key string, value interface{}) error {
 
 // Unshift - unshift/push value to the front of an array in store
 func (s *Store) Unshift(key string, value interface{}) error {
-	x, ok := s.Data.Load(s.Key)
-	if !ok {
-		return errors.New("Unable to load data")
-	}
-	if _, ok := x.(map[string]interface{})[key]; !ok {
-		x.(map[string]interface{})[key] = make([]interface{}, 0)
+	x, err := s.getMap()
+	if err != nil {
+		return err
 	}
 
-	if arr, ok := x.(map[string]interface{})[key].([]interface{}); ok {
+	if _, ok := x[key]; !ok {
+		x[key] = make([]interface{}, 0)
+	}
+
+	if arr, ok := x[key].([]interface{}); ok {
 		arr = append([]interface{}{value}, arr...)
-		x.(map[string]interface{})[key] = arr
-		s.Data.Store(s.Key, x.(map[string]interface{}))
+		x[key] = arr
+		s.Data.Store(s.Key, x)
 		if err := s.Save(); err != nil {
 			return err
 		}

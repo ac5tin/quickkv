@@ -7,11 +7,11 @@ import (
 
 // Get - retrieve data from store
 func (s *Store) Get(key string) (interface{}, error) {
-	x, ok := s.Data.Load(s.Key)
-	if !ok {
-		return nil, errors.New("Unable to load data")
+	x, err := s.getMap()
+	if err != nil {
+		return nil, err
 	}
-	if v, ok := x.(map[string]interface{})[key]; ok {
+	if v, ok := x[key]; ok {
 		return v, nil
 	}
 	return nil, errors.New("Failed to find key")
@@ -38,9 +38,9 @@ func (s *Store) MGet(keys []string) []interface{} {
 
 // GetAll - retrieve whole store
 func (s *Store) GetAll() map[string]interface{} {
-	x, ok := s.Data.Load(s.Key)
-	if !ok {
+	x, err := s.getMap()
+	if err != nil {
 		return nil
 	}
-	return x.(map[string]interface{})
+	return x
 }

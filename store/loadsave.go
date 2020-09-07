@@ -7,9 +7,9 @@ import (
 
 // Save - save data to file
 func (s *Store) Save() error {
-	x, ok := s.Data.Load(s.Key)
-	if !ok {
-		return nil
+	x, err := s.getMap()
+	if err != nil {
+		return err
 	}
 	var buf bytes.Buffer
 	encoder := gob.NewEncoder(&buf)
