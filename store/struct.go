@@ -5,7 +5,7 @@ import "sync"
 // Store - main store
 type Store struct {
 	Path     string
-	Data     map[string]interface{}
+	Data     sync.Map
+	Key      string
 	Password string
-	Mux      *sync.RWMutex
 }

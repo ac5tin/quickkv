@@ -7,9 +7,11 @@ import (
 
 // Get - retrieve data from store
 func (s *Store) Get(key string) (interface{}, error) {
-	s.Mux.RLock()
-	defer s.Mux.RUnlock()
-	if v, ok := s.Data[key]; ok {
+	x, ok := s.Data.Load(s.Key)
+	if !ok {
+		return nil, errors.New("Unable to load data")
+	}
+	if v, ok := x.(map[string]interface{})[key]; ok {
 		return v, nil
 	}
 	return nil, errors.New("Failed to find key")
@@ -36,7 +38,9 @@ func (s *Store) MGet(keys []string) []interface{} {
 
 // GetAll - retrieve whole store
 func (s *Store) GetAll() map[string]interface{} {
-	s.Mux.RLock()
-	defer s.Mux.RUnlock()
-	return s.Data
+	x, ok := s.Data.Load(s.Key)
+	if !ok {
+		return nil
+	}
+	return x.(map[string]interface{})
 }

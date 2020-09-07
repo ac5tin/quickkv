@@ -9,14 +9,13 @@ import (
 
 // Init - initialise store
 func Init(path, password string) *Store {
-	d := make(map[string]interface{})
 	f := uf.NewFS()
 
 	s := Store{
 		Path:     path,
-		Data:     d,
+		Data:     sync.Map{},
 		Password: password,
-		Mux:      &sync.RWMutex{},
+		Key:      "DATA",
 	}
 
 	if f.FileExist(path) {

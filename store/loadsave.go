@@ -7,9 +7,13 @@ import (
 
 // Save - save data to file
 func (s *Store) Save() error {
+	x, ok := s.Data.Load(s.Key)
+	if !ok {
+		return nil
+	}
 	var buf bytes.Buffer
 	encoder := gob.NewEncoder(&buf)
-	if err := encoder.Encode(s.Data); err != nil {
+	if err := encoder.Encode(x); err != nil {
 		return err
 	}
 	b := buf.Bytes()
@@ -30,10 +34,6 @@ func (s *Store) Load() error {
 	if err := decoder.Decode(&d); err != nil {
 		return err
 	}
-	// s.Data = d <- this line doesnt work
-	// need to run loop to reassign keyvalue
-	for key, value := range d {
-		s.Data[key] = value
-	}
+	s.Data.Store(s.Key, d)
 	return nil
 }

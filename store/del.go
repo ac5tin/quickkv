@@ -8,9 +8,13 @@ import (
 
 // Del - delete a key
 func (s *Store) Del(key string) error {
-	s.Mux.Lock()
-	defer s.Mux.Unlock()
-	delete(s.Data, key)
+	x, ok := s.Data.Load(s.Key)
+	if !ok {
+		return errors.New("Unable to load data")
+	}
+
+	delete(x.(map[string]interface{}), key)
+	s.Data.Store(s.Key, x.(map[string]interface{}))
 	if err := s.Save(); err != nil {
 		return err
 	}
@@ -19,9 +23,11 @@ func (s *Store) Del(key string) error {
 
 // ArrRm - remove value from an array
 func (s *Store) ArrRm(key string, value interface{}) error {
-	s.Mux.Lock()
-	defer s.Mux.Unlock()
-	if arr, ok := s.Data[key].([]interface{}); ok {
+	x, ok := s.Data.Load(s.Key)
+	if !ok {
+		return errors.New("Unable to load data")
+	}
+	if arr, ok := x.(map[string]interface{})[key].([]interface{}); ok {
 		arr1 := arr // clone arr
 		for i, v := range arr1 {
 			if v == value {
@@ -29,8 +35,8 @@ func (s *Store) ArrRm(key string, value interface{}) error {
 				uf.NewArrRmiF().Any(&arr, uint32(i))
 			}
 		}
-		s.Data[key] = arr
-
+		x.(map[string]interface{})[key] = arr
+		s.Data.Store(s.Key, x.(map[string]interface{}))
 		if err := s.Save(); err != nil {
 			return err
 		}
@@ -43,21 +49,23 @@ func (s *Store) ArrRm(key string, value interface{}) error {
 
 // Pop - removes last element from array and returns it
 func (s *Store) Pop(key string) (interface{}, error) {
-	s.Mux.Lock()
-	defer s.Mux.Unlock()
+	x, ok := s.Data.Load(s.Key)
+	if !ok {
+		return nil, errors.New("Unable to load data")
+	}
 	var retme interface{}
-	if _, ok := s.Data[key]; !ok {
-		s.Data[key] = make([]interface{}, 0)
+	if _, ok := x.(map[string]interface{})[key]; !ok {
+		x.(map[string]interface{})[key] = make([]interface{}, 0)
 	}
 
-	if arr, ok := s.Data[key].([]interface{}); ok {
+	if arr, ok := x.(map[string]interface{})[key].([]interface{}); ok {
 		if len(arr) < 1 {
 			return nil, errors.New("Slice empty")
 		}
 		retme = arr[0]
 		arr = arr[1:]
-		s.Data[key] = arr
-
+		x.(map[string]interface{})[key] = arr
+		s.Data.Store(s.Key, x.(map[string]interface{}))
 		if err := s.Save(); err != nil {
 			return nil, err
 		}
@@ -70,19 +78,21 @@ func (s *Store) Pop(key string) (interface{}, error) {
 
 // Shift - shift array
 func (s *Store) Shift(key string, shifts int) error {
-	s.Mux.Lock()
-	defer s.Mux.Unlock()
-	if _, ok := s.Data[key]; !ok {
-		s.Data[key] = make([]interface{}, 0)
+	x, ok := s.Data.Load(s.Key)
+	if !ok {
+		return errors.New("Unable to load data")
+	}
+	if _, ok := x.(map[string]interface{})[key]; !ok {
+		x.(map[string]interface{})[key] = make([]interface{}, 0)
 	}
 
-	if arr, ok := s.Data[key].([]interface{}); ok {
+	if arr, ok := x.(map[string]interface{})[key].([]interface{}); ok {
 		if len(arr) < shifts {
 			return errors.New("Slice bounds out of range")
 		}
 		arr = arr[:len(arr)-shifts]
-		s.Data[key] = arr
-
+		x.(map[string]interface{})[key] = arr
+		s.Data.Store(s.Key, x.(map[string]interface{}))
 		if err := s.Save(); err != nil {
 			return err
 		}
@@ -95,11 +105,14 @@ func (s *Store) Shift(key string, shifts int) error {
 
 // Reset - resets the store
 func (s *Store) Reset() error {
-	s.Mux.Lock()
-	defer s.Mux.Unlock()
-	for k := range s.Data {
-		delete(s.Data, k)
+	x, ok := s.Data.Load(s.Key)
+	if !ok {
+		return errors.New("Unable to load data")
 	}
+	for k := range x.(map[string]interface{}) {
+		delete(x.(map[string]interface{}), k)
+	}
+	s.Data.Store(s.Key, x.(map[string]interface{}))
 	if err := s.Save(); err != nil {
 		return err
 	}

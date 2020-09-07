@@ -7,10 +7,12 @@ import (
 
 // Set - sets a value in store
 func (s *Store) Set(key string, value interface{}) error {
-	s.Mux.Lock()
-	defer s.Mux.Unlock()
+	x, ok := s.Data.Load(s.Key)
+	if !ok {
+		return errors.New("Unable to load data")
+	}
 
-	s.Data[key] = value
+	x.(map[string]interface{})[key] = value
 
 	if err := s.Save(); err != nil {
 		return err
@@ -20,16 +22,18 @@ func (s *Store) Set(key string, value interface{}) error {
 
 // Push - pushes a value to an array in store
 func (s *Store) Push(key string, value interface{}) error {
-	s.Mux.Lock()
-	defer s.Mux.Unlock()
-	if _, ok := s.Data[key]; !ok {
-		s.Data[key] = make([]interface{}, 0)
+	x, ok := s.Data.Load(s.Key)
+	if !ok {
+		return errors.New("Unable to load data")
+	}
+	if _, ok := x.(map[string]interface{})[key]; !ok {
+		x.(map[string]interface{})[key] = make([]interface{}, 0)
 	}
 
-	if arr, ok := s.Data[key].([]interface{}); ok {
+	if arr, ok := x.(map[string]interface{})[key].([]interface{}); ok {
 		arr = append(arr, value)
-		s.Data[key] = arr
-
+		x.(map[string]interface{})[key] = arr
+		s.Data.Store(s.Key, x.(map[string]interface{}))
 		if err := s.Save(); err != nil {
 			return err
 		}
@@ -42,16 +46,18 @@ func (s *Store) Push(key string, value interface{}) error {
 
 // Unshift - unshift/push value to the front of an array in store
 func (s *Store) Unshift(key string, value interface{}) error {
-	s.Mux.Lock()
-	defer s.Mux.Unlock()
-	if _, ok := s.Data[key]; !ok {
-		s.Data[key] = make([]interface{}, 0)
+	x, ok := s.Data.Load(s.Key)
+	if !ok {
+		return errors.New("Unable to load data")
+	}
+	if _, ok := x.(map[string]interface{})[key]; !ok {
+		x.(map[string]interface{})[key] = make([]interface{}, 0)
 	}
 
-	if arr, ok := s.Data[key].([]interface{}); ok {
+	if arr, ok := x.(map[string]interface{})[key].([]interface{}); ok {
 		arr = append([]interface{}{value}, arr...)
-		s.Data[key] = arr
-
+		x.(map[string]interface{})[key] = arr
+		s.Data.Store(s.Key, x.(map[string]interface{}))
 		if err := s.Save(); err != nil {
 			return err
 		}
