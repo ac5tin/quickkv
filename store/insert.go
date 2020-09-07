@@ -1,20 +1,12 @@
 package store
 
 import (
-	"errors"
 	"sync"
 )
 
 // Set - sets a value in store
 func (s *Store) Set(key string, value interface{}) error {
-	x, err := s.getMap()
-	if err != nil {
-		return err
-	}
-
-	x[key] = value
-	s.Data.Store(s.Key, x)
-
+	s.Data.Store(key, value)
 	if err := s.Save(); err != nil {
 		return err
 	}
@@ -23,24 +15,14 @@ func (s *Store) Set(key string, value interface{}) error {
 
 // Push - pushes a value to an array in store
 func (s *Store) Push(key string, value interface{}) error {
-	x, err := s.getMap()
+	arr, err := s.getArr(key)
 	if err != nil {
 		return err
 	}
-
-	if _, ok := x[key]; !ok {
-		x[key] = make([]interface{}, 0)
-	}
-
-	if arr, ok := x[key].([]interface{}); ok {
-		arr = append(arr, value)
-		x[key] = arr
-		s.Data.Store(s.Key, x)
-		if err := s.Save(); err != nil {
-			return err
-		}
-	} else {
-		return errors.New("Key not of array type")
+	arr = append(arr, value)
+	s.Data.Store(key, arr)
+	if err := s.Save(); err != nil {
+		return err
 	}
 
 	return nil
@@ -48,24 +30,14 @@ func (s *Store) Push(key string, value interface{}) error {
 
 // Unshift - unshift/push value to the front of an array in store
 func (s *Store) Unshift(key string, value interface{}) error {
-	x, err := s.getMap()
+	arr, err := s.getArr(key)
 	if err != nil {
 		return err
 	}
-
-	if _, ok := x[key]; !ok {
-		x[key] = make([]interface{}, 0)
-	}
-
-	if arr, ok := x[key].([]interface{}); ok {
-		arr = append([]interface{}{value}, arr...)
-		x[key] = arr
-		s.Data.Store(s.Key, x)
-		if err := s.Save(); err != nil {
-			return err
-		}
-	} else {
-		return errors.New("Key not of array type")
+	arr = append([]interface{}{value}, arr...)
+	s.Data.Store(key, arr)
+	if err := s.Save(); err != nil {
+		return err
 	}
 
 	return nil

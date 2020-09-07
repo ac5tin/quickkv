@@ -6,6 +6,5 @@ import "sync"
 type Store struct {
 	Path     string
 	Data     sync.Map
-	Key      string
 	Password string
 }

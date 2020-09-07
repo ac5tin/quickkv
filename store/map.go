@@ -1,15 +1,22 @@
 package store
 
-import "errors"
-
 func (s *Store) getMap() (map[string]interface{}, error) {
-	y, ok := s.Data.Load(s.Key)
 	x := make(map[string]interface{})
-	for k, v := range y.(map[string]interface{}) {
-		x[k] = v
-	}
+	s.Data.Range(func(key, value interface{}) bool {
+		x[key.(string)] = value
+		return true
+	})
+	return x, nil
+}
+
+func (s *Store) getArr(key string) ([]interface{}, error) {
+	y, ok := s.Data.Load(key)
 	if !ok {
-		return nil, errors.New("Unable to load data")
+		// key doesnt exist, initialise empty array
+		y = make([]interface{}, 0)
 	}
+	x := make([]interface{}, len(y.([]interface{})))
+	copy(x, y.([]interface{}))
+
 	return x, nil
 }
