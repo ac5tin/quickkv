@@ -17,6 +17,8 @@ func Init(path, password string) *Store {
 		Password: password,
 		Key:      "DATA",
 	}
+	d := make(map[string]interface{})
+	s.Data.Store(s.Key, d)
 
 	if f.FileExist(path) {
 		// file exist, load data
