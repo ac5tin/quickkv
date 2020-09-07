@@ -8,13 +8,7 @@ import (
 
 // Del - delete a key
 func (s *Store) Del(key string) error {
-	x, err := s.getMap()
-	if err != nil {
-		return err
-	}
-
-	delete(x, key)
-	s.Data.Store(s.Key, x)
+	s.Data.Delete(key)
 	if err := s.Save(); err != nil {
 		return err
 	}
@@ -23,25 +17,20 @@ func (s *Store) Del(key string) error {
 
 // ArrRm - remove value from an array
 func (s *Store) ArrRm(key string, value interface{}) error {
-	x, err := s.getMap()
+	arr, err := s.getArr(key)
 	if err != nil {
 		return err
 	}
-	if arr, ok := x[key].([]interface{}); ok {
-		arr1 := arr // clone arr
-		for i, v := range arr1 {
-			if v == value {
-				// arr.remove(i)
-				uf.NewArrRmiF().Any(&arr, uint32(i))
-			}
+
+	for i, v := range arr {
+		if v == value {
+			// arr.remove(i)
+			uf.NewArrRmiF().Any(&arr, uint32(i))
 		}
-		x[key] = arr
-		s.Data.Store(s.Key, x)
-		if err := s.Save(); err != nil {
-			return err
-		}
-	} else {
-		return errors.New("Key not of array type")
+	}
+	s.Data.Store(key, arr)
+	if err := s.Save(); err != nil {
+		return err
 	}
 
 	return nil
@@ -49,28 +38,18 @@ func (s *Store) ArrRm(key string, value interface{}) error {
 
 // Pop - removes last element from array and returns it
 func (s *Store) Pop(key string) (interface{}, error) {
-	x, err := s.getMap()
+	arr, err := s.getArr(key)
 	if err != nil {
 		return nil, err
 	}
-	var retme interface{}
-	if _, ok := x[key]; !ok {
-		x[key] = make([]interface{}, 0)
+	if len(arr) == 0 {
+		return nil, errors.New("Empty slice")
 	}
-
-	if arr, ok := x[key].([]interface{}); ok {
-		if len(arr) < 1 {
-			return nil, errors.New("Slice empty")
-		}
-		retme = arr[0]
-		arr = arr[1:]
-		x[key] = arr
-		s.Data.Store(s.Key, x)
-		if err := s.Save(); err != nil {
-			return nil, err
-		}
-	} else {
-		return nil, errors.New("Key not of array type")
+	retme := arr[0]
+	arr = arr[1:]
+	s.Data.Store(key, arr)
+	if err := s.Save(); err != nil {
+		return nil, err
 	}
 
 	return retme, nil
@@ -78,41 +57,27 @@ func (s *Store) Pop(key string) (interface{}, error) {
 
 // Shift - shift array
 func (s *Store) Shift(key string, shifts int) error {
-	x, err := s.getMap()
+	arr, err := s.getArr(key)
 	if err != nil {
 		return err
 	}
-	if _, ok := x[key]; !ok {
-		x[key] = make([]interface{}, 0)
+	if len(arr) < shifts {
+		return errors.New("Slice bounds out of range")
 	}
-
-	if arr, ok := x[key].([]interface{}); ok {
-		if len(arr) < shifts {
-			return errors.New("Slice bounds out of range")
-		}
-		arr = arr[:len(arr)-shifts]
-		x[key] = arr
-		s.Data.Store(s.Key, x)
-		if err := s.Save(); err != nil {
-			return err
-		}
-	} else {
-		return errors.New("Key not of array type")
+	arr = arr[:len(arr)-shifts]
+	s.Data.Store(key, arr)
+	if err := s.Save(); err != nil {
+		return err
 	}
-
 	return nil
 }
 
 // Reset - resets the store
 func (s *Store) Reset() error {
-	x, err := s.getMap()
-	if err != nil {
-		return err
-	}
-	for k := range x {
-		delete(x, k)
-	}
-	s.Data.Store(s.Key, x)
+	s.Data.Range(func(k, v interface{}) bool {
+		s.Data.Delete(k)
+		return true
+	})
 	if err := s.Save(); err != nil {
 		return err
 	}

@@ -34,6 +34,8 @@ func (s *Store) Load() error {
 	if err := decoder.Decode(&d); err != nil {
 		return err
 	}
-	s.Data.Store(s.Key, d)
+	for k, v := range d {
+		s.Data.Store(k, v)
+	}
 	return nil
 }

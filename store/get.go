@@ -7,14 +7,11 @@ import (
 
 // Get - retrieve data from store
 func (s *Store) Get(key string) (interface{}, error) {
-	x, err := s.getMap()
-	if err != nil {
-		return nil, err
+	v, ok := s.Data.Load(key)
+	if !ok {
+		return nil, errors.New("Failed to find key")
 	}
-	if v, ok := x[key]; ok {
-		return v, nil
-	}
-	return nil, errors.New("Failed to find key")
+	return v, nil
 }
 
 // MGet - multiple get
