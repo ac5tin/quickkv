@@ -21,6 +21,7 @@ func StartServer(port uint16) {
 
 	grpcserver := grpc.NewServer()
 	quickkvpb.RegisterIoServiceServer(grpcserver, &server{})
+	quickkvpb.RegisterStoreServiceServer(grpcserver, &server{})
 
 	fmt.Printf("grpc Server Listening on %v ... \n", address)
 	grpcserver.Serve(lis)

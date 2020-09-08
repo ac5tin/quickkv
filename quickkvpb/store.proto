@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package quickkv;
+option go_package = "./quickkvpb";
+
+message record {
+    bytes data = 1;
+}
+
+message status {
+    uint32 error = 1;
+}
+
+
+
+message setRequest {
+    string key = 1;
+    record data = 2;
+}
+
+message getRequest {
+    string key = 1;
+}
+
+message getResponse {
+    status status = 1;
+    record data = 2;
+}
+
+service storeService {
+    rpc Set(setRequest) returns (status);
+    rpc Get(getRequest) returns (getResponse);
+}
