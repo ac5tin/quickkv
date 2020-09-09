@@ -2,6 +2,7 @@ package store
 
 import (
 	"errors"
+	"strings"
 	"sync"
 )
 
@@ -40,4 +41,28 @@ func (s *Store) GetAll() map[string]interface{} {
 		return nil
 	}
 	return x
+}
+
+// KeySearch - search by key
+func (s *Store) KeySearch(srch string) map[string]interface{} {
+	retme := make(map[string]interface{})
+	s.Data.Range(func(key, value interface{}) bool {
+		if strings.Contains(key.(string), srch) {
+			retme[key.(string)] = value
+		}
+		return true
+	})
+	return retme
+}
+
+// Prefix - key prefix
+func (s *Store) Prefix(txt string) map[string]interface{} {
+	retme := make(map[string]interface{})
+	s.Data.Range(func(key, value interface{}) bool {
+		if strings.HasPrefix(key.(string), txt) {
+			retme[key.(string)] = value
+		}
+		return true
+	})
+	return retme
 }

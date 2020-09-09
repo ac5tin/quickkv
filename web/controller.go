@@ -246,3 +246,25 @@ func arrdel(c *fiber.Ctx) {
 		"result": "success",
 	})
 }
+
+func prefix(c *fiber.Ctx) {
+	key := c.Query("q")
+	s := store.STORE
+	data := s.Prefix(key)
+	// all done
+	c.Status(200).JSON(fiber.Map{
+		"result": "success",
+		"data":   data,
+	})
+}
+
+func search(c *fiber.Ctx) {
+	srch := c.Query("q")
+	s := store.STORE
+	data := s.KeySearch(srch)
+	// all done
+	c.Status(200).JSON(fiber.Map{
+		"result": "success",
+		"data":   data,
+	})
+}

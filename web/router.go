@@ -15,4 +15,6 @@ func Routes(router *fiber.Router) {
 	(*router).Post("/rm/:key", arrdel)
 	(*router).Get("/pop/:key", pop)
 	(*router).Get("/shift/:key", shift)
+	(*router).Get("/prefix", prefix)
+	(*router).Get("/search", search)
 }
