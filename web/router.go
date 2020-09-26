@@ -1,6 +1,6 @@
 package web
 
-import "github.com/gofiber/fiber"
+import "github.com/gofiber/fiber/v2"
 
 // Routes - define /api/web routes
 func Routes(router *fiber.Router) {

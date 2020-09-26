@@ -1,14 +1,15 @@
 package web
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"quickkv/store"
 
-	"github.com/gofiber/fiber"
+	"github.com/gofiber/fiber/v2"
 )
 
-func set(c *fiber.Ctx) {
+func set(c *fiber.Ctx) error {
 	key := c.Params("key")
 	var value interface{}
 	if err := c.BodyParser(&value); err != nil {
@@ -17,7 +18,7 @@ func set(c *fiber.Ctx) {
 			"result": "error",
 			"error":  err.Error(),
 		})
-		return
+		return err
 	}
 
 	s := store.STORE
@@ -27,15 +28,16 @@ func set(c *fiber.Ctx) {
 			"result": "error",
 			"error":  err.Error(),
 		})
-		return
+		return err
 	}
 	// all done
 	c.Status(200).JSON(fiber.Map{
 		"result": "success",
 	})
+	return nil
 }
 
-func get(c *fiber.Ctx) {
+func get(c *fiber.Ctx) error {
 	key := c.Params("key")
 	s := store.STORE
 	v, err := s.Get(key)
@@ -45,25 +47,27 @@ func get(c *fiber.Ctx) {
 			"result": "error",
 			"error":  err.Error(),
 		})
-		return
+		return err
 	}
 	// all done
 	c.Status(200).JSON(fiber.Map{
 		"result": "success",
 		"data":   v,
 	})
+	return nil
 }
 
-func getAll(c *fiber.Ctx) {
+func getAll(c *fiber.Ctx) error {
 	s := store.STORE
 	// all done
 	c.Status(200).JSON(fiber.Map{
 		"result": "success",
 		"data":   s.GetAll(),
 	})
+	return nil
 }
 
-func mget(c *fiber.Ctx) {
+func mget(c *fiber.Ctx) error {
 	var keys []string
 	if err := c.BodyParser(&keys); err != nil {
 		log.Println(err.Error())
@@ -71,7 +75,7 @@ func mget(c *fiber.Ctx) {
 			"result": "error",
 			"error":  err.Error(),
 		})
-		return
+		return err
 	}
 	s := store.STORE
 	v := s.MGet(keys)
@@ -80,9 +84,10 @@ func mget(c *fiber.Ctx) {
 		"result": "success",
 		"data":   v,
 	})
+	return nil
 }
 
-func del(c *fiber.Ctx) {
+func del(c *fiber.Ctx) error {
 	key := c.Params("key")
 	s := store.STORE
 	if err := s.Del(key); err != nil {
@@ -91,15 +96,16 @@ func del(c *fiber.Ctx) {
 			"result": "error",
 			"error":  err.Error(),
 		})
-		return
+		return err
 	}
 	// all done
 	c.Status(200).JSON(fiber.Map{
 		"result": "success",
 	})
+	return nil
 }
 
-func reset(c *fiber.Ctx) {
+func reset(c *fiber.Ctx) error {
 	s := store.STORE
 	if err := s.Reset(); err != nil {
 		log.Println(err.Error())
@@ -107,15 +113,16 @@ func reset(c *fiber.Ctx) {
 			"result": "error",
 			"error":  err.Error(),
 		})
-		return
+		return err
 	}
 	// all done
 	c.Status(200).JSON(fiber.Map{
 		"result": "success",
 	})
+	return nil
 }
 
-func push(c *fiber.Ctx) {
+func push(c *fiber.Ctx) error {
 	key := c.Params("key")
 	var value interface{}
 	if err := c.BodyParser(&value); err != nil {
@@ -124,7 +131,7 @@ func push(c *fiber.Ctx) {
 			"result": "error",
 			"error":  err.Error(),
 		})
-		return
+		return err
 	}
 
 	s := store.STORE
@@ -134,15 +141,16 @@ func push(c *fiber.Ctx) {
 			"result": "error",
 			"error":  err.Error(),
 		})
-		return
+		return err
 	}
 	// all done
 	c.Status(200).JSON(fiber.Map{
 		"result": "success",
 	})
+	return nil
 }
 
-func unshift(c *fiber.Ctx) {
+func unshift(c *fiber.Ctx) error {
 	key := c.Params("key")
 	var value interface{}
 	if err := c.BodyParser(&value); err != nil {
@@ -151,7 +159,7 @@ func unshift(c *fiber.Ctx) {
 			"result": "error",
 			"error":  err.Error(),
 		})
-		return
+		return err
 	}
 
 	s := store.STORE
@@ -161,15 +169,16 @@ func unshift(c *fiber.Ctx) {
 			"result": "error",
 			"error":  err.Error(),
 		})
-		return
+		return err
 	}
 	// all done
 	c.Status(200).JSON(fiber.Map{
 		"result": "success",
 	})
+	return nil
 }
 
-func pop(c *fiber.Ctx) {
+func pop(c *fiber.Ctx) error {
 	key := c.Params("key")
 
 	s := store.STORE
@@ -180,16 +189,17 @@ func pop(c *fiber.Ctx) {
 			"result": "error",
 			"error":  err.Error(),
 		})
-		return
+		return err
 	}
 	// all done
 	c.Status(200).JSON(fiber.Map{
 		"result": "success",
 		"data":   v,
 	})
+	return nil
 }
 
-func shift(c *fiber.Ctx) {
+func shift(c *fiber.Ctx) error {
 	key := c.Params("key")
 
 	query := struct {
@@ -202,7 +212,7 @@ func shift(c *fiber.Ctx) {
 			"result": "error",
 			"error":  err.Error(),
 		})
-		return
+		return err
 	}
 
 	s := store.STORE
@@ -212,15 +222,16 @@ func shift(c *fiber.Ctx) {
 			"result": "error",
 			"error":  err.Error(),
 		})
-		return
+		return err
 	}
 	// all done
 	c.Status(200).JSON(fiber.Map{
 		"result": "success",
 	})
+	return nil
 }
 
-func arrdel(c *fiber.Ctx) {
+func arrdel(c *fiber.Ctx) error {
 	key := c.Params("key")
 	var value interface{}
 	if err := c.BodyParser(&value); err != nil {
@@ -229,7 +240,7 @@ func arrdel(c *fiber.Ctx) {
 			"result": "error",
 			"error":  err.Error(),
 		})
-		return
+		return err
 	}
 
 	s := store.STORE
@@ -239,15 +250,16 @@ func arrdel(c *fiber.Ctx) {
 			"result": "error",
 			"error":  err.Error(),
 		})
-		return
+		return err
 	}
 	// all done
 	c.Status(200).JSON(fiber.Map{
 		"result": "success",
 	})
+	return nil
 }
 
-func prefix(c *fiber.Ctx) {
+func prefix(c *fiber.Ctx) error {
 	key := c.Query("q")
 	s := store.STORE
 	data := s.Prefix(key)
@@ -256,9 +268,10 @@ func prefix(c *fiber.Ctx) {
 		"result": "success",
 		"data":   data,
 	})
+	return nil
 }
 
-func search(c *fiber.Ctx) {
+func search(c *fiber.Ctx) error {
 	srch := c.Query("q")
 	s := store.STORE
 	data := s.KeySearch(srch)
@@ -267,16 +280,17 @@ func search(c *fiber.Ctx) {
 		"result": "success",
 		"data":   data,
 	})
+	return nil
 }
 
-func addReplicaServer(c *fiber.Ctx) {
+func addReplicaServer(c *fiber.Ctx) error {
 	server := c.Query("address", "")
 	if server == "" {
 		c.Status(400).JSON(fiber.Map{
 			"result": "error",
 			"error":  "Address not supplied",
 		})
-		return
+		return errors.New("Address not supplied")
 	}
 	s := store.STORE
 	go s.AddReplicaServer(server)
@@ -284,4 +298,5 @@ func addReplicaServer(c *fiber.Ctx) {
 	c.Status(200).JSON(fiber.Map{
 		"result": "success",
 	})
+	return nil
 }

@@ -10,8 +10,11 @@ import (
 	"quickkv/web"
 	"syscall"
 
-	"github.com/gofiber/fiber"
-	"github.com/gofiber/fiber/middleware"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/compress"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
@@ -45,27 +48,29 @@ func main() {
 	go grpcserver.StartServer(uint16(*gport))
 
 	// web server
-	app := fiber.New()
-	// settings
-	app.Settings.BodyLimit = 1024 * 1024 * 1024
+	app := fiber.New(fiber.Config{
+		BodyLimit: 1024 * 1024 * 1024,
+	})
 	// middleware
-	app.Use(middleware.Compress())
+	app.Use(compress.New())
+	app.Use(cors.New())
 
-	app.Use(func(c *fiber.Ctx) {
+	app.Use(func(c *fiber.Ctx) error {
 		c.Next()
+		return nil
 	})
 	// ==== API ROUTES =====
-	app.Get("/ping", func(c *fiber.Ctx) { c.Status(200).Send("pong") })
+	app.Get("/ping", func(c *fiber.Ctx) error { c.Status(200).Send([]byte("pong")); return nil })
 
 	webapi := app.Group("/api/web")
 	web.Routes(&webapi)
 	// ===== ERROR RECOVER =====
-	app.Use(middleware.Recover())
+	app.Use(recover.New())
 	// ==== LOGGER =====
-	app.Use(middleware.Logger())
+	app.Use(logger.New())
 	// start server
 	log.Println(fmt.Sprintf("Listening on PORT %d", *port))
-	if err := app.Listen(*port); err != nil {
+	if err := app.Listen(fmt.Sprintf(":%d", *port)); err != nil {
 		log.Fatal(err.Error())
 	}
 }
