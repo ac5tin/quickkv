@@ -14,6 +14,7 @@ func (s *Store) write(b *[]byte) error {
 	if err := uf.NewFS().Write(bin, s.Path); err != nil {
 		return err
 	}
+	go s.Replicate()
 	return nil
 }
 

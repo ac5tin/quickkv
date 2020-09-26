@@ -17,4 +17,5 @@ func Routes(router *fiber.Router) {
 	(*router).Get("/shift/:key", shift)
 	(*router).Get("/prefix", prefix)
 	(*router).Get("/search", search)
+	(*router).Get("/replica/add", addReplicaServer)
 }

@@ -268,3 +268,20 @@ func search(c *fiber.Ctx) {
 		"data":   data,
 	})
 }
+
+func addReplicaServer(c *fiber.Ctx) {
+	server := c.Query("address", "")
+	if server == "" {
+		c.Status(400).JSON(fiber.Map{
+			"result": "error",
+			"error":  "Address not supplied",
+		})
+		return
+	}
+	s := store.STORE
+	go s.AddReplicaServer(server)
+	// all done
+	c.Status(200).JSON(fiber.Map{
+		"result": "success",
+	})
+}

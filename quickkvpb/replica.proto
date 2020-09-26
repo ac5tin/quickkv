@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+package quickkv;
+option go_package = "./quickkvpb";
+
+message data {
+    bytes binary = 1;
+}
+
+message replica {
+    string address = 1;
+}
+
+
+service replicaService {
+    rpc Replicate(data) returns (google.protobuf.Empty){};
+}
