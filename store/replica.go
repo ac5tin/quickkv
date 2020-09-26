@@ -3,7 +3,9 @@ package store
 import (
 	"bytes"
 	"context"
+	"log"
 	"quickkv/quickkvpb"
+	"sync"
 
 	uf "github.com/ac5tin/usefulgo"
 	"github.com/ulikunitz/xz"
@@ -72,18 +74,25 @@ func (s *Store) Replicate() error {
 		return err
 	}
 
+	var wg sync.WaitGroup
 	for _, r := range replicas {
-		opts := grpc.WithInsecure()
-		conn, err := grpc.Dial(r, opts)
-		if err != nil {
-			return err
-		}
-		client := quickkvpb.NewReplicaServiceClient(conn)
-		request := &quickkvpb.Data{Binary: buf.Bytes()}
-		_, err = client.Replicate(context.Background(), request)
-		if err != nil {
-			return err
-		}
+		wg.Add(1)
+		go func(server string) {
+			defer wg.Done()
+			opts := grpc.WithInsecure()
+			conn, err := grpc.Dial(server, opts)
+			if err != nil {
+				log.Println(err.Error())
+			}
+			client := quickkvpb.NewReplicaServiceClient(conn)
+			request := &quickkvpb.Data{Binary: buf.Bytes()}
+			_, err = client.Replicate(context.Background(), request)
+			if err != nil {
+				log.Println(err.Error())
+			}
+		}(r)
+
 	}
+	wg.Wait()
 	return nil
 }

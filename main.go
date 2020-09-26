@@ -5,6 +5,8 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net/http"
+	"os"
 	"quickkv/grpcserver"
 	"quickkv/store"
 	"quickkv/web"
@@ -44,8 +46,29 @@ func main() {
 	// store
 	store.Init(*filepath, pw)
 
-	// grpc
-	go grpcserver.StartServer(uint16(*gport))
+	// grpc + replication start
+	go func() {
+		grpcserver.StartServer(uint16(*gport))
+		if os.Getenv("MASTER_SERVER") == "" || os.Getenv("MY_ADDR") == "" {
+			return
+		}
+		log.Println("-- STARTING IN REPLICA MODE --")
+		log.Printf("-- CONNECTING TO MASTER : %s --\n", os.Getenv("MASTER_SERVER"))
+		log.Printf("-- self.server.address = %s --\n", os.Getenv("MY_ADDR"))
+		req, err := http.NewRequest("GET", fmt.Sprintf("%s/api/web/replica/add", os.Getenv("MASTER_SERVER")), nil)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		q := req.URL.Query()
+		q.Add("address", fmt.Sprintf("%s:%d", os.Getenv("MY_ADDR"), *port))
+		req.URL.RawQuery = q.Encode()
+		req.Header.Add("content-type", "application/json")
+		res, err := http.DefaultClient.Do(req)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		defer res.Body.Close()
+	}()
 
 	// web server
 	app := fiber.New(fiber.Config{
