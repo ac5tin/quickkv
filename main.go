@@ -60,7 +60,7 @@ func main() {
 			log.Fatal(err.Error())
 		}
 		q := req.URL.Query()
-		q.Add("address", fmt.Sprintf("%s:%d", os.Getenv("MY_ADDR"), *port))
+		q.Add("address", fmt.Sprintf("%s:%d", os.Getenv("MY_ADDR"), *gport))
 		req.URL.RawQuery = q.Encode()
 		req.Header.Add("content-type", "application/json")
 		res, err := http.DefaultClient.Do(req)
