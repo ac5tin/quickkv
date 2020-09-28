@@ -310,3 +310,13 @@ func listReplicas(c *fiber.Ctx) error {
 	})
 	return nil
 }
+
+func resetReplicasList(c *fiber.Ctx) error {
+	s := store.STORE
+	s.ResetReplicasList()
+	// all done
+	c.Status(200).JSON(fiber.Map{
+		"result": "success",
+	})
+	return nil
+}

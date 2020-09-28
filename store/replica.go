@@ -25,6 +25,11 @@ func (s *Store) AddReplicaServer(server string) {
 	go s.replicateSingleServer(server)
 }
 
+// ResetReplicasList - resets the replicas list back to empty array
+func (s *Store) ResetReplicasList() {
+	replicas = []string{}
+}
+
 // RmReplicaServer - remove replica server
 func (s *Store) RmReplicaServer(server string) {
 	uf.ArrRMS(&replicas, server)

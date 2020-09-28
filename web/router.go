@@ -19,4 +19,5 @@ func Routes(router *fiber.Router) {
 	(*router).Get("/search", search)
 	(*router).Get("/replica/add", addReplicaServer)
 	(*router).Get("/replica", listReplicas)
+	(*router).Delete("/replica", resetReplicasList)
 }
