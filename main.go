@@ -51,7 +51,7 @@ func main() {
 	go grpcserver.StartServer(uint16(*gport))
 
 	go func() {
-		if os.Getenv("MASTER_SERVER") == "" || os.Getenv("MY_ADDR") == "" {
+		if os.Getenv("MASTER_SERVER_ENDPOINT") == "" || os.Getenv("MY_ADDR") == "" {
 			return
 		}
 		log.Println("-- STARTING IN REPLICA MODE --")
