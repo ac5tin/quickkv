@@ -12,6 +12,7 @@ import (
 	"quickkv/web"
 	"syscall"
 
+	uf "github.com/ac5tin/usefulgo"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -54,9 +55,10 @@ func main() {
 			return
 		}
 		log.Println("-- STARTING IN REPLICA MODE --")
-		log.Printf("-- CONNECTING TO MASTER : %s --\n", os.Getenv("MASTER_SERVER"))
+		masterServer := uf.NewMisc().NewURLBuilder(os.Getenv("MASTER_SERVER_SCHEME"), os.Getenv("MASTER_SERVER_ENDPOINT"), os.Getenv("MASTER_SERVER_PORT")).Build()
+		log.Printf("-- CONNECTING TO MASTER : %s --\n", masterServer)
 		log.Printf("-- self.server.address = %s --\n", os.Getenv("MY_ADDR"))
-		req, err := http.NewRequest("GET", fmt.Sprintf("http://%s/api/web/replica/add", os.Getenv("MASTER_SERVER")), nil)
+		req, err := http.NewRequest("GET", fmt.Sprintf("%s/api/web/replica/add", masterServer), nil)
 		if err != nil {
 			log.Fatal(err.Error())
 		}
