@@ -68,6 +68,7 @@ func (s *Store) replicateSingleServer(server string) error {
 
 // Replicate - start replication
 func (s *Store) Replicate() error {
+	log.Println("starting replication")
 	b, err := s.GetBinary()
 	if err != nil {
 		return err
@@ -86,6 +87,7 @@ func (s *Store) Replicate() error {
 
 	var wg sync.WaitGroup
 	for _, r := range replicas {
+		log.Printf("replication server: %s\f", r)
 		wg.Add(1)
 		go func(server string) {
 			defer wg.Done()
