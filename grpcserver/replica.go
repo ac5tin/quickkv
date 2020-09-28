@@ -22,6 +22,7 @@ func (*server) Replicate(ctx context.Context, request *quickkvpb.Data) (*emptypb
 	if err != nil {
 		return &empty, err
 	}
+	store.STORE.Reset()
 	store.STORE.LoadBinary(data)
 
 	return &empty, nil
