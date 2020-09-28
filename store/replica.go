@@ -66,6 +66,43 @@ func (s *Store) replicateSingleServer(server string) error {
 	return nil
 }
 
+// ReplicateBin - exactly the same as Replicate() except it takes in the []byte as an argument instead of looking for it in the store
+func (s *Store) ReplicateBin(b *[]byte) error {
+	var buf bytes.Buffer
+	xw, err := xz.NewWriter(&buf)
+	if err != nil {
+		return err
+	}
+	if _, err := xw.Write(*b); err != nil {
+		return err
+	}
+	if err := xw.Close(); err != nil {
+		return err
+	}
+
+	var wg sync.WaitGroup
+	for _, r := range replicas {
+		wg.Add(1)
+		go func(server string) {
+			defer wg.Done()
+			opts := grpc.WithInsecure()
+			conn, err := grpc.Dial(server, opts)
+			if err != nil {
+				log.Println(err.Error())
+			}
+			client := quickkvpb.NewReplicaServiceClient(conn)
+			request := &quickkvpb.Data{Binary: buf.Bytes()}
+			_, err = client.Replicate(context.Background(), request)
+			if err != nil {
+				log.Println(err.Error())
+			}
+		}(r)
+
+	}
+	wg.Wait()
+	return nil
+}
+
 // Replicate - start replication
 func (s *Store) Replicate() error {
 	b, err := s.GetBinary()
