@@ -1,6 +1,10 @@
 package store
 
-import uf "github.com/ac5tin/usefulgo"
+import (
+	"log"
+
+	uf "github.com/ac5tin/usefulgo"
+)
 
 func (s *Store) write(b *[]byte) error {
 	bin := *b
@@ -14,7 +18,11 @@ func (s *Store) write(b *[]byte) error {
 	if err := uf.NewFS().Write(bin, s.Path); err != nil {
 		return err
 	}
-	go s.Replicate()
+	go func() {
+		if err := s.Replicate(); err != nil {
+			log.Println(err.Error())
+		}
+	}()
 	return nil
 }
 
