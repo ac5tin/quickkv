@@ -47,15 +47,16 @@ func main() {
 	store.Init(*filepath, pw)
 
 	// grpc + replication start
+	go grpcserver.StartServer(uint16(*gport))
+
 	go func() {
-		grpcserver.StartServer(uint16(*gport))
 		if os.Getenv("MASTER_SERVER") == "" || os.Getenv("MY_ADDR") == "" {
 			return
 		}
 		log.Println("-- STARTING IN REPLICA MODE --")
 		log.Printf("-- CONNECTING TO MASTER : %s --\n", os.Getenv("MASTER_SERVER"))
 		log.Printf("-- self.server.address = %s --\n", os.Getenv("MY_ADDR"))
-		req, err := http.NewRequest("GET", fmt.Sprintf("%s/api/web/replica/add", os.Getenv("MASTER_SERVER")), nil)
+		req, err := http.NewRequest("GET", fmt.Sprintf("http://%s/api/web/replica/add", os.Getenv("MASTER_SERVER")), nil)
 		if err != nil {
 			log.Fatal(err.Error())
 		}

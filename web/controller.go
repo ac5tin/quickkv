@@ -300,3 +300,13 @@ func addReplicaServer(c *fiber.Ctx) error {
 	})
 	return nil
 }
+
+func listReplicas(c *fiber.Ctx) error {
+	s := store.STORE
+	// all done
+	c.Status(200).JSON(fiber.Map{
+		"result": "success",
+		"data":   s.ListReplicas(),
+	})
+	return nil
+}

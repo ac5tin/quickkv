@@ -14,6 +14,11 @@ import (
 
 var replicas = []string{}
 
+// ListReplicas - return list of all replicas
+func (s *Store) ListReplicas() []string {
+	return replicas
+}
+
 // AddReplicaServer - add replica server
 func (s *Store) AddReplicaServer(server string) {
 	replicas = append(replicas, server)
