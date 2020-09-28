@@ -15,9 +15,12 @@ func (s *Store) write(b *[]byte) error {
 		}
 		bin = bb
 	}
+	log.Println("writing")
 	if err := uf.NewFS().Write(bin, s.Path); err != nil {
+		log.Println(err.Error())
 		return err
 	}
+	log.Println("finished writing, start replication")
 	go func() {
 		if err := s.Replicate(); err != nil {
 			log.Println(err.Error())
