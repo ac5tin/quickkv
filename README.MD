@@ -6,6 +6,8 @@
 - [ ] quick search content
 - [x] encrypt
 - [ ] cluster
+    - [x] replicas
+    - [ ] delta
 - [x] web rest api
 
 
