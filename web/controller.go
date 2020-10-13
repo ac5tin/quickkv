@@ -320,3 +320,33 @@ func resetReplicasList(c *fiber.Ctx) error {
 	})
 	return nil
 }
+
+func increment(c *fiber.Ctx) error {
+	key := c.Params("key")
+	s := store.STORE
+	if err := s.Increment(key); err != nil {
+		return c.Status(fiber.ErrInternalServerError.Code).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+	// all done
+	c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"result": "success",
+	})
+	return nil
+}
+
+func decrement(c *fiber.Ctx) error {
+	key := c.Params("key")
+	s := store.STORE
+	if err := s.Decrement(key); err != nil {
+		return c.Status(fiber.ErrInternalServerError.Code).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+	// all done
+	c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"result": "success",
+	})
+	return nil
+}

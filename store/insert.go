@@ -1,6 +1,7 @@
 package store
 
 import (
+	"errors"
 	"sync"
 )
 
@@ -89,4 +90,40 @@ func (s *Store) QMapSet(input map[string]interface{}) {
 	for key, value := range input {
 		go s.Set(key, value)
 	}
+}
+
+// Increment - increment value of a key
+func (s *Store) Increment(key string) error {
+	v, ok := s.Data.Load(key)
+	if ok {
+		// found key in map, now check its type
+		num, ok := v.(int)
+		if !ok {
+			return errors.New("key is not an integer")
+		}
+		// num is an integer, safe to increment
+		num++
+		s.Set(key, num)
+		return nil
+	}
+	s.Set(key, 1)
+	return nil
+}
+
+// Decrement - increment value of a key
+func (s *Store) Decrement(key string) error {
+	v, ok := s.Data.Load(key)
+	if ok {
+		// found key in map, now check its type
+		num, ok := v.(int)
+		if !ok {
+			return errors.New("key is not an integer")
+		}
+		// num is an integer, safe to increment
+		num--
+		s.Set(key, num)
+		return nil
+	}
+	s.Set(key, -1)
+	return nil
 }

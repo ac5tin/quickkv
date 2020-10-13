@@ -20,4 +20,6 @@ func Routes(router *fiber.Router) {
 	(*router).Get("/replica/add", addReplicaServer)
 	(*router).Get("/replica", listReplicas)
 	(*router).Delete("/replica", resetReplicasList)
+	(*router).Get("/increment/:key", increment)
+	(*router).Get("/decrement/:key", decrement)
 }
