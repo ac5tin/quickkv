@@ -17,6 +17,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"golang.org/x/crypto/ssh/terminal"
 )
@@ -75,9 +76,12 @@ func main() {
 
 	// web server
 	app := fiber.New(fiber.Config{
-		BodyLimit: 1024 * 1024 * 1024,
+		BodyLimit:   1024 * 1024 * 1024,
+		Concurrency: 512 * 1024,
 	})
 	// middleware
+	app.Use(recover.New())
+	app.Use(logger.New())
 	app.Use(compress.New())
 	app.Use(cors.New())
 
@@ -88,12 +92,12 @@ func main() {
 	// ==== API ROUTES =====
 	app.Get("/ping", func(c *fiber.Ctx) error { c.Status(200).Send([]byte("pong")); return nil })
 
+	// monitor
+	app.Get("/dashboard", monitor.New())
+
 	webapi := app.Group("/api/web")
 	web.Routes(&webapi)
-	// ===== ERROR RECOVER =====
-	app.Use(recover.New())
-	// ==== LOGGER =====
-	app.Use(logger.New())
+
 	// start server
 	log.Println(fmt.Sprintf("Listening on PORT %d", *port))
 	if err := app.Listen(fmt.Sprintf(":%d", *port)); err != nil {
