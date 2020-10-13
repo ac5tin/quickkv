@@ -1,14 +1,13 @@
 package store
 
 import (
-	"bytes"
 	"context"
 	"log"
+	"quickkv/helper"
 	"quickkv/quickkvpb"
 	"sync"
 
 	uf "github.com/ac5tin/usefulgo"
-	"github.com/ulikunitz/xz"
 	"google.golang.org/grpc"
 )
 
@@ -40,15 +39,8 @@ func (s *Store) replicateSingleServer(server string) error {
 	if err != nil {
 		return err
 	}
-	var buf bytes.Buffer
-	xw, err := xz.NewWriter(&buf)
+	cmp, err := helper.Compress(&b)
 	if err != nil {
-		return err
-	}
-	if _, err := xw.Write(b); err != nil {
-		return err
-	}
-	if err := xw.Close(); err != nil {
 		return err
 	}
 
@@ -58,7 +50,7 @@ func (s *Store) replicateSingleServer(server string) error {
 		return err
 	}
 	client := quickkvpb.NewReplicaServiceClient(conn)
-	request := &quickkvpb.Data{Binary: buf.Bytes()}
+	request := &quickkvpb.Data{Binary: cmp}
 	_, err = client.Replicate(context.Background(), request)
 	if err != nil {
 		return err
@@ -68,15 +60,8 @@ func (s *Store) replicateSingleServer(server string) error {
 
 // ReplicateBin - exactly the same as Replicate() except it takes in the []byte as an argument instead of looking for it in the store
 func (s *Store) ReplicateBin(b *[]byte) error {
-	var buf bytes.Buffer
-	xw, err := xz.NewWriter(&buf)
+	cmp, err := helper.Decompress(b)
 	if err != nil {
-		return err
-	}
-	if _, err := xw.Write(*b); err != nil {
-		return err
-	}
-	if err := xw.Close(); err != nil {
 		return err
 	}
 
@@ -91,7 +76,7 @@ func (s *Store) ReplicateBin(b *[]byte) error {
 				log.Println(err.Error())
 			}
 			client := quickkvpb.NewReplicaServiceClient(conn)
-			request := &quickkvpb.Data{Binary: buf.Bytes()}
+			request := &quickkvpb.Data{Binary: cmp}
 			_, err = client.Replicate(context.Background(), request)
 			if err != nil {
 				log.Println(err.Error())
@@ -109,18 +94,10 @@ func (s *Store) Replicate() error {
 	if err != nil {
 		return err
 	}
-	var buf bytes.Buffer
-	xw, err := xz.NewWriter(&buf)
+	cmp, err := helper.Compress(&b)
 	if err != nil {
 		return err
 	}
-	if _, err := xw.Write(b); err != nil {
-		return err
-	}
-	if err := xw.Close(); err != nil {
-		return err
-	}
-
 	var wg sync.WaitGroup
 	for _, r := range replicas {
 		wg.Add(1)
@@ -132,7 +109,7 @@ func (s *Store) Replicate() error {
 				log.Println(err.Error())
 			}
 			client := quickkvpb.NewReplicaServiceClient(conn)
-			request := &quickkvpb.Data{Binary: buf.Bytes()}
+			request := &quickkvpb.Data{Binary: cmp}
 			_, err = client.Replicate(context.Background(), request)
 			if err != nil {
 				log.Println(err.Error())
